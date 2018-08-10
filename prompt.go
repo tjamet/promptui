@@ -46,8 +46,10 @@ type Prompt struct {
 	// IsVimMode enables vi-like movements (hjkl) and editing.
 	IsVimMode bool
 
-	stdin  io.ReadCloser
-	stdout io.WriteCloser
+    // Stdin lets you provide a a custom input reader
+	Stdin  io.ReadCloser
+    // Stdout lets you provide a custom output writer
+	Stdout io.WriteCloser
 }
 
 // PromptTemplates allow a prompt to be customized following stdlib
@@ -120,12 +122,12 @@ func (p *Prompt) Run() (string, error) {
 		return "", err
 	}
 
-	if p.stdin != nil {
-		c.Stdin = p.stdin
+	if p.Stdin != nil {
+		c.Stdin = p.Stdin
 	}
 
-	if p.stdout != nil {
-		c.Stdout = p.stdout
+	if p.Stdout != nil {
+		c.Stdout = p.Stdout
 	}
 
 	if p.Mask != 0 {

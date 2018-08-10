@@ -64,6 +64,11 @@ type Select struct {
 	// For search mode to work, the Search property must be implemented.
 	StartInSearchMode bool
 
+    // Stdin lets you provide a a custom input reader
+	Stdin  io.ReadCloser
+    // Stdout lets you provide a custom output writer
+	Stdout io.WriteCloser
+
 	label string
 
 	list *list.List
@@ -172,6 +177,12 @@ type SelectTemplates struct {
 // the command prompt or it has received a valid value. It will return the value and an error if any
 // occurred during the select's execution.
 func (s *Select) Run() (int, string, error) {
+    if s.Stdin == nil {
+        s.Stdin = os.Stdin
+    }
+    if s.Stdout == nil {
+        s.Stdout = os.Stdout
+    }
 	if s.Size == 0 {
 		s.Size = 5
 	}
@@ -194,7 +205,7 @@ func (s *Select) Run() (int, string, error) {
 }
 
 func (s *Select) innerRun(starting int, top rune) (int, string, error) {
-	stdin := readline.NewCancelableStdin(os.Stdin)
+	stdin := readline.NewCancelableStdin(s.Stdin)
 	c := &readline.Config{}
 	err := c.Init()
 	if err != nil {
@@ -509,7 +520,7 @@ func (sa *SelectWithAdd) Run() (int, string, error) {
 		}
 
 		// XXX run through terminal for windows
-		os.Stdout.Write([]byte(upLine(1) + "\r" + clearLine))
+		s.Stdout.Write([]byte(upLine(1) + "\r" + clearLine))
 	}
 
 	p := Prompt{
